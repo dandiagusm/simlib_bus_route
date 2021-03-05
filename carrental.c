@@ -1,9 +1,100 @@
 #include "simlib.h"		/* Required for use of simlib.c. */
 
+#define EVENT_ARRIVAL_1					1	 /* Event type for arrival of a job to terminal 1. */
+#define EVENT_ARRIVAL_2					2	 /* Event type for arrival of a job to terminal 2. */
+#define EVENT_ARRIVAL_3					3	 /* Event type for arrival of a job to car rental. */
+#define EVENT_DEPARTURE_BUS			4	 /* Event type for departure of a bus. */
+#define EVENT_ARRIVE_BUS				5	 /* Event type for arrival of a bus. */
+#define EVENT_LOAD				      6	 /* Event type for loading passengers from a particular station. */
+#define EVENT_UNLOAD				    7	 /* Event type for unloading passengers to a particular station. */
+#define EVENT_END_SIMULATION		8	 /* Event type for end of the simulation. */
+#define STREAM_INTERARRIVAL_1		1	 /* Random-number stream for interarrivals at terminal 1. */
+#define STREAM_INTERARRIVAL_2		2	 /* Random-number stream for interarrivals at terminal 2. */
+#define STREAM_INTERARRIVAL_3		3	 /* Random-number stream for interarrivals at car rental. */
+#define STREAM_UNLOADING				4	 /* Random-number stream for unloading time. */
+#define STREAM_LOADING					5	 /* Random-number stream for loading time. */
+#define STREAM_DESTINATION_ARV	6	 /* Random-number stream for selecting destination from car rental. */
+#define MAX_NUM_STATIONS				3	 /* Maximum number of stations. */
+#define MAX_NUM_BUS							1	 /* Maximum number of bus. */
+#define MAX_NUM_SEATS						20 /* Maximum number of seats. */
+#define VAR_QUEUE_STATION       0  /* Zero index of statistic variable for queue in station 1/2/3 */
+#define VAR_BUS_AT_STATION      3  /* Zero index of statistic variable for bus stop at station 1/2/3 */
+#define VAR_PERSON_FROM_STATION 6  /* Zero index of statistic variable for person arrive at station 1/2/3 */
+#define VAR_BUS                 10 /* Statistic variable for bus */
 
 int bus_position, bus_moving, capacity, num_stations, i, j, bus_idle, looping;
 double waiting_time, arrive_time_bus, mean_interarrival[MAX_NUM_STATIONS + 1], simulation_duration, prob_distrib_dest[3], dist[MAX_NUM_STATIONS+1][MAX_NUM_STATIONS+1], loop_ori, loop_final, speed;
 FILE *input_file, *output_file;
+
+void move_bus(){
+    int init = bus_position;
+    int dest;
+    bus_moving = 1;
+    bus_idle = 0;
+
+    if(bus_position != 3){
+        dest = bus_position+1;
+    }else{
+        dest = 3;
+    }
+
+    sampst(sim_time - arrive_time_bus, VAR_BUS_AT_STATION+bus_position);
+    event_schedule(sim_time+(dist[init][dest]), EVENT_ARRIVE_BUS);
+}
+
+void load(){
+    int destination;
+    int terminal = bus_position;
+    double time_at_position = sim_time - arrive_time_bus, arrival_time;
+
+    bus_idle = 0;
+    if (list_size[terminal] > 0 && capacity>0){
+        list_remove(FIRST, terminal);
+        arrival_time = transfer[1];
+        destination= transfer[3]; //destination yang ditentukan saat arrive
+
+        list_file(LAST, MAX_NUM_STATIONS+destination);
+
+        --capacity;
+        timest(MAX_NUM_SEATS-capacity, VAR_BUS);
+
+        sampst(sim_time-arrival_time, VAR_QUEUE_STATION+terminal);
+
+        event_schedule(sim_time+uniform(0.0041667, 0.0069444, STREAM_LOADING), EVENT_LOAD);
+    }else{
+        if(time_at_position >= waiting_time){
+            move_bus();
+        }else{
+            event_schedule(sim_time+(waiting_time-time_at_position), EVENT_DEPARTURE_BUS);
+            bus_idle = 1;
+        }
+    }
+}
+
+void unload(){
+    int destination = bus_position;
+    int origin;
+    double arrive_time;
+
+    if(list_size[MAX_NUM_STATIONS+destination]> 0){
+        list_remove(FIRST, MAX_NUM_STATIONS+destination);
+        arrive_time = transfer[1];
+        origin = transfer[2];
+
+        ++capacity;
+        timest(MAX_NUM_SEATS - capacity, VAR_BUS);
+
+        sampst(sim_time - arrive_time, VAR_PERSON_FROM_STATION+origin);
+
+        if(list_size[MAX_NUM_STATIONS+destination]>0){
+            event_schedule(sim_time+uniform(0.00444, 0.00677, STREAM_UNLOADING), EVENT_UNLOAD);
+        }else{
+            event_schedule(sim_time+uniform(0.00444, 0.00677, STREAM_UNLOADING), EVENT_LOAD);
+        }
+    }else {
+        load();
+    }
+}
 
 void arrive (int new_job, int station) 
 {
@@ -62,7 +153,7 @@ void arrive_bus(){
 void report_output(void){
     fprintf (output_file, "\n\nReport Bus Route Model\n");
 
-    fprintf (outfile, "A.\n");
+    fprintf (output_file, "A.\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
         filest(i);
         fprintf (output_file, "Average number location queue %d : %0.3f\n", i, transfer[1]);
@@ -192,75 +283,5 @@ int main (){
                 report_output ();
                 break;
         }  
-    }
-}
-
-void move_bus(){
-    int init = bus_position;
-    int dest;
-    bus_moving = 1;
-    bus_idle = 0;
-
-    if(bus_position != 3){
-        dest = bus_position+1;
-    }else{
-        dest = 3;
-    }
-
-    sampst(sim_time - arrive_time_bus, VAR_BUS_AT_STATION+bus_position);
-    event_schedule(sim_time+(dist[init][dest]), EVENT_ARRIVE_BUS)
-}
-
-void load(){
-    int origin, destination;
-    int terminal = bus_position;
-    double time_at_position = sim_time - arrive_time_bus, arrival_time;
-
-    bus_idle = 0;
-    if (list_size[terminal] > 0 && capacity>0){
-        list_remove(FIRST, terminal);
-        arrival_time = transfer[1];
-        destination= transfer[3]; //destination yang ditentukan saat arrive
-
-        last_file(LAST, MAX_NUM_STATIONS+destination);
-
-        --capacity;
-        timest(MAX_NUM_SEATS-capacity, VAR_BUS);
-
-        sampst(sim_time-arrival_time, VAR_QUEUE_STATION+terminal);
-
-        event_schedule(sim_time+uniform(0.0041667, 0.0069444, STREAM_LOADING), EVENT_LOAD);
-    }else{
-        if(time_at_position >= waiting_time){
-            move_b();
-        }else{
-            event_schedule(sim_time+(waiting_time-time_at_position), EVENT_DEPARTURE_BUS);
-            bus_idle = 1;
-        }
-    }
-}
-
-void unload(){
-    int destination = bus_position;
-    int origin;
-    double arrive_time;
-
-    if(list_size(MAX_NUM_STATIONS+destination)> 0){
-        list_remove(FIRST, MAX_NUM_STATIONS+destination);
-        arrival_time = transfer[1];
-        origin = transfer[2];
-
-        ++capacity;
-        timest(MAX_NUM_SEATS - capacity, VAR_BUS);
-
-        sampst(sim_time - arrival_time, VAR_PERSON_FROM_STATION+origin);
-
-        if(list_size[MAX_NUM_STATIONS+destination]>0){
-            event_schedule(sim_time+uniform(0.00444, 0.00677, STREAM_UNLOADING), EVENT_UNLOAD);
-        }else{
-            event_schedule(sim_time+uniform(0.00444, 0.00677, STREAM_UNLOADING), EVENT_LOAD))
-        }
-    }else {
-        load();
     }
 }
