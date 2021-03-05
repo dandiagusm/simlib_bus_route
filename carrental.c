@@ -1,22 +1,24 @@
 #include "simlib.h"		/* Required for use of simlib.c. */
 
-#define EVENT_ARRIVAL_1					1	 /* Event type for arrival of a job to terminal 1. */
-#define EVENT_ARRIVAL_2					2	 /* Event type for arrival of a job to terminal 2. */
-#define EVENT_ARRIVAL_3					3	 /* Event type for arrival of a job to car rental. */
-#define EVENT_DEPARTURE_BUS			4	 /* Event type for departure of a bus. */
-#define EVENT_ARRIVE_BUS				5	 /* Event type for arrival of a bus. */
-#define EVENT_LOAD				      6	 /* Event type for loading passengers from a particular station. */
-#define EVENT_UNLOAD				    7	 /* Event type for unloading passengers to a particular station. */
-#define EVENT_END_SIMULATION		8	 /* Event type for end of the simulation. */
-#define STREAM_INTERARRIVAL_1		1	 /* Random-number stream for interarrivals at terminal 1. */
-#define STREAM_INTERARRIVAL_2		2	 /* Random-number stream for interarrivals at terminal 2. */
-#define STREAM_INTERARRIVAL_3		3	 /* Random-number stream for interarrivals at car rental. */
-#define STREAM_UNLOADING				4	 /* Random-number stream for unloading time. */
-#define STREAM_LOADING					5	 /* Random-number stream for loading time. */
+#define STREAM_INTER_ARV_1		1	 /* Random-number stream for interarrivals at terminal 1. */
+#define STREAM_INTER_ARV_2		2	 /* Random-number stream for interarrivals at terminal 2. */
+#define STREAM_INTER_ARV_3		3	 /* Random-number stream for interarrivals at car rental. */
+#define STREAM_UNLOADING		4	 /* Random-number stream for unloading time. */
+#define STREAM_LOADING			5	 /* Random-number stream for loading time. */
 #define STREAM_DESTINATION_ARV	6	 /* Random-number stream for selecting destination from car rental. */
-#define MAX_NUM_STATIONS				3	 /* Maximum number of stations. */
-#define MAX_NUM_BUS							1	 /* Maximum number of bus. */
-#define MAX_NUM_SEATS						20 /* Maximum number of seats. */
+
+#define EVENT_ARV_1				1	 /* Event type for arrival of a job to terminal 1. */
+#define EVENT_ARV_2				2	 /* Event type for arrival of a job to terminal 2. */
+#define EVENT_ARV_3				3	 /* Event type for arrival of a job to car rental. */
+#define EVENT_DEPARTURE_BUS		4	 /* Event type for departure of a bus. */
+#define EVENT_ARV_BUS			5	 /* Event type for arrival of a bus. */
+#define EVENT_LOAD				6	 /* Event type for loading passengers from a particular station. */
+#define EVENT_UNLOAD		    7	 /* Event type for unloading passengers to a particular station. */
+#define EVENT_END_SIMULATION	8	 /* Event type for end of the simulation. */
+
+#define MAX_NUM_STATIONS		3	 /* Maximum number of stations. */
+#define MAX_NUM_BUS				1	 /* Maximum number of bus. */
+#define MAX_NUM_SEATS			20 /* Maximum number of seats. */
 #define VAR_QUEUE_STATION       0  /* Zero index of statistic variable for queue in station 1/2/3 */
 #define VAR_BUS_AT_STATION      3  /* Zero index of statistic variable for bus stop at station 1/2/3 */
 #define VAR_PERSON_FROM_STATION 6  /* Zero index of statistic variable for person arrive at station 1/2/3 */
@@ -39,7 +41,7 @@ void move_bus(){
     }
 
     sampst(sim_time - arrive_time_bus, VAR_BUS_AT_STATION+bus_position);
-    event_schedule(sim_time+(dist[init][dest]), EVENT_ARRIVE_BUS);
+    event_schedule(sim_time+(dist[init][dest]), EVENT_ARV_BUS);
 }
 
 void load(){
@@ -55,7 +57,7 @@ void load(){
 
         list_file(LAST, MAX_NUM_STATIONS+destination);
 
-        --capacity;
+        capacity -= 1;
         timest(MAX_NUM_SEATS-capacity, VAR_BUS);
 
         sampst(sim_time-arrival_time, VAR_QUEUE_STATION+terminal);
@@ -81,7 +83,7 @@ void unload(){
         arrive_time = transfer[1];
         origin = transfer[2];
 
-        ++capacity;
+        capacity += 1;
         timest(MAX_NUM_SEATS - capacity, VAR_BUS);
 
         sampst(sim_time - arrive_time, VAR_PERSON_FROM_STATION+origin);
@@ -101,17 +103,17 @@ void arrive (int new_job, int station)
 	int dest;
 	if (station == 1)
 	{
-		event_schedule(sim_time + expon (mean_interarrival[1], STREAM_INTERARRIVAL_1), EVENT_ARRIVAL_1);
+		event_schedule(sim_time + expon (mean_interarrival[1], STREAM_INTER_ARV_1), EVENT_ARV_1);
         dest = 3;
 	}
 	else if (station == 2)
 	{
-		event_schedule(sim_time + expon (mean_interarrival[2], STREAM_INTERARRIVAL_2), EVENT_ARRIVAL_2);
+		event_schedule(sim_time + expon (mean_interarrival[2], STREAM_INTER_ARV_2), EVENT_ARV_2);
         dest = 3;
 	}
 	else if (station == 3)
 	{
-		event_schedule(sim_time + expon (mean_interarrival[3], STREAM_INTERARRIVAL_3), EVENT_ARRIVAL_3);
+		event_schedule(sim_time + expon (mean_interarrival[3], STREAM_INTER_ARV_3), EVENT_ARV_3);
         dest = random_integer (prob_distrib_dest, STREAM_DESTINATION_ARV);
     }
 
@@ -243,12 +245,12 @@ int main (){
     maxatr = 4;			
 
     // Init job bus
-    event_schedule (0.0, EVENT_ARRIVE_BUS);
+    event_schedule (0.0, EVENT_ARV_BUS);
 
     // init job customer
-    event_schedule (expon (mean_interarrival[1], STREAM_INTERARRIVAL_1), EVENT_ARRIVAL_1);
-    event_schedule (expon (mean_interarrival[2], STREAM_INTERARRIVAL_2), EVENT_ARRIVAL_2);
-    event_schedule (expon (mean_interarrival[3], STREAM_INTERARRIVAL_3), EVENT_ARRIVAL_3);
+    event_schedule (expon (mean_interarrival[1], STREAM_INTER_ARV_1), EVENT_ARV_1);
+    event_schedule (expon (mean_interarrival[2], STREAM_INTER_ARV_2), EVENT_ARV_2);
+    event_schedule (expon (mean_interarrival[3], STREAM_INTER_ARV_3), EVENT_ARV_3);
   
     // schedule ending
     event_schedule (simulation_duration, EVENT_END_SIMULATION);
@@ -258,13 +260,13 @@ int main (){
         /* Determine the next event. */
         timing ();
         switch (next_event_type){
-            case EVENT_ARRIVAL_1:
+            case EVENT_ARV_1:
                 arrive (1,1);
                 break;
-            case EVENT_ARRIVAL_2:
+            case EVENT_ARV_2:
                 arrive (1,2);
                 break;  	
-            case EVENT_ARRIVAL_3:
+            case EVENT_ARV_3:
                 arrive (1,3);
                 break;
             case EVENT_LOAD:
@@ -273,7 +275,7 @@ int main (){
             case EVENT_UNLOAD:
                 unload ();
                 break;
-            case EVENT_ARRIVE_BUS:
+            case EVENT_ARV_BUS:
                 arrive_bus ();
                 break;
             case EVENT_DEPARTURE_BUS:
