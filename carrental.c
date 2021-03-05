@@ -1,11 +1,11 @@
 #include "simlib.h"		/* Required for use of simlib.c. */
-
+#include <stdio.h>
 #define STREAM_INTER_ARV_1		1	 /* Random-number stream for interarrivals at terminal 1. */
 #define STREAM_INTER_ARV_2		2	 /* Random-number stream for interarrivals at terminal 2. */
 #define STREAM_INTER_ARV_3		3	 /* Random-number stream for interarrivals at car rental. */
 #define STREAM_UNLOADING		4	 /* Random-number stream for unloading time. */
 #define STREAM_LOADING			5	 /* Random-number stream for loading time. */
-#define STREAM_DESTINATION_ARV	6	 /* Random-number stream for selecting destination from car rental. */
+#define STREAM_DESTINATION_ARV	6	 /* Random-number stream for selecting dest from car rental. */
 
 #define EVENT_ARV_1				1	 /* Event type for arrival of a job to terminal 1. */
 #define EVENT_ARV_2				2	 /* Event type for arrival of a job to terminal 2. */
@@ -24,38 +24,39 @@
 #define VAR_PERSON_FROM_STATION 6  /* Zero index of statistic variable for person arrive at station 1/2/3 */
 #define VAR_BUS                 10 /* Statistic variable for bus */
 
-int bus_position, bus_moving, capacity, num_stations, i, j, bus_idle, looping;
-double waiting_time, arrive_time_bus, mean_interarrival[MAX_NUM_STATIONS + 1], simulation_duration, prob_distrib_dest[3], dist[MAX_NUM_STATIONS+1][MAX_NUM_STATIONS+1], loop_ori, loop_final, speed;
+int pos_bus, bus_moving, capacity, num_stations, i, j, bus_idle, looping;
+double waiting_time, arrive_time_bus, mean_interarrival[MAX_NUM_STATIONS + 1], simulation_duration, prob_distrib_dest[3], dist_time[MAX_NUM_STATIONS+1][MAX_NUM_STATIONS+1], loop_ori, loop_final, speed;
 FILE *input_file, *output_file;
+int three_two, three_one;
 
 void move_bus(){
-    int init = bus_position;
+    int init = pos_bus;
     int dest;
     bus_moving = 1;
     bus_idle = 0;
 
-    if(bus_position != 3){
-        dest = bus_position+1;
+    if(pos_bus == 3){
+        dest = 1;
     }else{
-        dest = 3;
+        dest = pos_bus+1;
     }
 
-    sampst(sim_time - arrive_time_bus, VAR_BUS_AT_STATION+bus_position);
-    event_schedule(sim_time+(dist[init][dest]), EVENT_ARV_BUS);
+    sampst(sim_time - arrive_time_bus, VAR_BUS_AT_STATION+pos_bus);
+    event_schedule(sim_time+(dist_time[init][dest]), EVENT_ARV_BUS);
 }
 
 void load(){
-    int destination;
-    int terminal = bus_position;
+    int dest;
+    int terminal = pos_bus;
     double time_at_position = sim_time - arrive_time_bus, arrival_time;
 
     bus_idle = 0;
     if (list_size[terminal] > 0 && capacity>0){
         list_remove(FIRST, terminal);
         arrival_time = transfer[1];
-        destination= transfer[3]; //destination yang ditentukan saat arrive
+        dest= transfer[3]; //destination yang ditentukan saat arrive
 
-        list_file(LAST, MAX_NUM_STATIONS+destination);
+        list_file(LAST, MAX_NUM_STATIONS+dest);
 
         capacity -= 1;
         timest(MAX_NUM_SEATS-capacity, VAR_BUS);
@@ -74,12 +75,12 @@ void load(){
 }
 
 void unload(){
-    int destination = bus_position;
+    int dest = pos_bus;
     int origin;
     double arrive_time;
 
-    if(list_size[MAX_NUM_STATIONS+destination]> 0){
-        list_remove(FIRST, MAX_NUM_STATIONS+destination);
+    if(list_size[MAX_NUM_STATIONS+dest]> 0){
+        list_remove(FIRST, MAX_NUM_STATIONS+dest);
         arrive_time = transfer[1];
         origin = transfer[2];
 
@@ -88,7 +89,7 @@ void unload(){
 
         sampst(sim_time - arrive_time, VAR_PERSON_FROM_STATION+origin);
 
-        if(list_size[MAX_NUM_STATIONS+destination]>0){
+        if(list_size[MAX_NUM_STATIONS+dest]>0){
             event_schedule(sim_time+uniform(0.00444, 0.00677, STREAM_UNLOADING), EVENT_UNLOAD);
         }else{
             event_schedule(sim_time+uniform(0.00444, 0.00677, STREAM_UNLOADING), EVENT_LOAD);
@@ -122,7 +123,7 @@ void arrive (int new_job, int station)
     transfer[3] = dest;
     list_file(LAST, station);
     
-    if ((bus_position == station) && (bus_idle == 1))
+    if ((pos_bus == station) && (bus_idle == 1))
     {
         event_cancel(EVENT_DEPARTURE_BUS);
         load();
@@ -131,19 +132,19 @@ void arrive (int new_job, int station)
 }
 
 void arrive_bus(){
-    int init = bus_position;
+    int init = pos_bus;
     bus_moving = 0;
 
-    if(bus_position != 3){
-        bus_position = bus_position+1;
+    if(pos_bus != 3){
+        pos_bus = pos_bus+1;
     }
     else{
-        bus_position = 1;
+        pos_bus = 1;
         looping = 1;
     }
 
-    if(bus_position == 3 && looping){
-        loop_final = sim_time - dist[init][bus_position];
+    if(pos_bus == 3 && looping){
+        loop_final = sim_time - dist_time[init][pos_bus];
         sampst(loop_final - loop_ori, VAR_BUS);
         loop_ori = loop_final;
     }
@@ -208,8 +209,8 @@ int main (){
 
     for (i = 1; i <= num_stations; ++i) {
         for (j = 1; j <=num_stations; ++j) {
-            fscanf (input_file, "%lg", &dist[i][j]);
-            dist[i][j] = dist[i][j]/speed; 
+            fscanf (input_file, "%lg", &dist_time[i][j]);
+            dist_time[i][j] = dist_time[i][j]/speed; 
         }
     }
 
@@ -233,7 +234,7 @@ int main (){
     fprintf (output_file, "\nIdle time%20.1f minutes\n\n", waiting_time);
 
     // Initialize bus position
-    bus_position = 2;
+    pos_bus = 2;
     bus_idle = 1;
     waiting_time = waiting_time/60.0f;
     capacity = MAX_NUM_SEATS;

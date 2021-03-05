@@ -11,49 +11,49 @@ Idle time                 5.0 minutes
 
 Report Bus Route Model
 A.
-Average number location queue 1 : 3.024
-Maximum number location queue 1 : 14.000
-Average number location queue 2 : 1.996
-Maximum number location queue 2 : 10.000
-Average number location queue 3 : 4.886
-Maximum number location queue 3 : 20.000
+Average number location queue 1 : 7.888
+Maximum number location queue 1 : 28.000
+Average number location queue 2 : 5.091
+Maximum number location queue 2 : 18.000
+Average number location queue 3 : 9.922
+Maximum number location queue 3 : 32.000
 
 B.
-Average delay location queue 1 : 0.214
-Maximum delay location queue 1 : 0.625
-Average delay location queue 2 : 0.203
-Maximum delay location queue 2 : 0.721
-Average delay location queue 3 : 0.211
-Maximum delay location queue 3 : 0.513
+Average delay location queue 1 : 0.559
+Maximum delay location queue 1 : 1.642
+Average delay location queue 2 : 0.517
+Maximum delay location queue 2 : 2.333
+Average delay location queue 3 : 0.429
+Maximum delay location queue 3 : 1.184
 
 C.
-Average number on the bus: 9.433
+Average number on the bus: 13.910
 Maximum number on the bus: 20.000
 
 D.
-Average time stop in location 1: 0.089
-Maximum time stop in location 1: 0.146
+Average time stop in location 1: 0.113
+Maximum time stop in location 1: 0.175
 Minimum time stop in location 1: 0.083
-Average time stop in location 2: 0.084
-Maximum time stop in location 2: 0.114
+Average time stop in location 2: 0.091
+Maximum time stop in location 2: 0.164
 Minimum time stop in location 2: 0.083
-Average time stop in location 3: 0.128
-Maximum time stop in location 3: 0.225
-Minimum time stop in location 3: 0.083
+Average time stop in location 3: 0.191
+Maximum time stop in location 3: 0.233
+Minimum time stop in location 3: 0.088
 
 E.
-Average time to make a loop:	0.484
-Maximum time to make a loop:	0.637
-Minimum time to make a loop:	0.288
+Average time to make a loop:	0.727
+Maximum time to make a loop:	0.812
+Minimum time to make a loop:	0.438
 
 
 f.
-Average time person in system from location 1: 0.537
-Maximum time person in system from location 1: 0.962
-Minimum time person in system from location 1: 0.288
-Average time person in system from location 2: 0.447
-Maximum time person in system from location 2: 0.982
-Minimum time person in system from location 2: 0.185
-Average time person in system from location 3: 0.319
-Maximum time person in system from location 3: 0.718
-Minimum time person in system from location 3: 0.017
+Average time person in system from location 1: 0.898
+Maximum time person in system from location 1: 1.968
+Minimum time person in system from location 1: 0.294
+Average time person in system from location 2: 0.774
+Maximum time person in system from location 2: 2.598
+Minimum time person in system from location 2: 0.221
+Average time person in system from location 3: 0.718
+Maximum time person in system from location 3: 1.533
+Minimum time person in system from location 3: 0.168
