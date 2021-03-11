@@ -1,28 +1,31 @@
-#include "simlib.h"		/* Required for use of simlib.c. */
+#include "simlib.h"
 #include <stdio.h>
-#define STREAM_INTER_ARV_1		1	 /* Random-number stream for interarrivals at terminal 1. */
-#define STREAM_INTER_ARV_2		2	 /* Random-number stream for interarrivals at terminal 2. */
-#define STREAM_INTER_ARV_3		3	 /* Random-number stream for interarrivals at car rental. */
-#define STREAM_UNLOADING		4	 /* Random-number stream for unloading time. */
-#define STREAM_LOADING			5	 /* Random-number stream for loading time. */
-#define STREAM_DESTINATION_ARV	6	 /* Random-number stream for selecting dest from car rental. */
 
-#define EVENT_ARV_1				1	 /* Event type for arrival of a job to terminal 1. */
-#define EVENT_ARV_2				2	 /* Event type for arrival of a job to terminal 2. */
-#define EVENT_ARV_3				3	 /* Event type for arrival of a job to car rental. */
-#define EVENT_DEPARTURE_BUS		4	 /* Event type for departure of a bus. */
-#define EVENT_ARV_BUS			5	 /* Event type for arrival of a bus. */
-#define EVENT_LOAD				6	 /* Event type for loading passengers from a particular station. */
-#define EVENT_UNLOAD		    7	 /* Event type for unloading passengers to a particular station. */
-#define EVENT_END_SIMULATION	8	 /* Event type for end of the simulation. */
+// contants
+#define MAX_NUM_STATIONS		3	 // Max number of stations
+#define MAX_NUM_BUS				1	 // Max number of bus
+#define MAX_NUM_SEATS			20   // Max number of seats in a bus
 
-#define MAX_NUM_STATIONS		3	 /* Maximum number of stations. */
-#define MAX_NUM_BUS				1	 /* Maximum number of bus. */
-#define MAX_NUM_SEATS			20 /* Maximum number of seats. */
-#define VAR_QUEUE_STATION       0  /* Zero index of statistic variable for queue in station 1/2/3 */
-#define VAR_BUS_AT_STATION      3  /* Zero index of statistic variable for bus stop at station 1/2/3 */
-#define VAR_PERSON_FROM_STATION 6  /* Zero index of statistic variable for person arrive at station 1/2/3 */
-#define VAR_BUS                 10 /* Statistic variable for bus */
+#define STREAM_INTER_ARV_1		1	 // stream random number for interarrival time at terminal 1
+#define STREAM_INTER_ARV_2		2	 // stream random number for interarrival time at terminal 1
+#define STREAM_INTER_ARV_3		3	 // stream random number for interarrival time at car rental
+#define STREAM_UNLOADING		4	 // stream random number for unloading time
+#define STREAM_LOADING			5	 // stream random number for loading time
+#define STREAM_DESTINATION_ARV	6	 // stream random number for determine destination from car rental
+
+#define EVENT_ARV_1				1	 // event arrival person in terminal 1
+#define EVENT_ARV_2				2	 // event arrival person in terminal 2
+#define EVENT_ARV_3				3	 // event arrival person in car rental
+#define EVENT_DEPARTURE_BUS		4	 // event type for departure of bus
+#define EVENT_ARV_BUS			5	 // event type for arrival of bus
+#define EVENT_LOAD				6	 // event loading passenger
+#define EVENT_UNLOAD		    7	 // event unloading passenger
+#define EVENT_END_SIMULATION	8	 // event end of the simulation
+
+#define VAR_QUEUE_STATION       0    // zero index of statistic variable for queue in station 1/2/3
+#define VAR_BUS_AT_STATION      3    // zero index of statistic variable for bus stop at station 1/2/3
+#define VAR_PERSON_FROM_STATION 6    // zero index of statistic variable for person arrive at station 1/2/3
+#define VAR_BUS                 10   // index statistic variable for bus
 
 int pos_bus, bus_moving, capacity, num_stations, i, j, bus_idle, looping;
 double waiting_time, arrive_time_bus, mean_interarrival[MAX_NUM_STATIONS + 1], simulation_duration, prob_distrib_dest[3], dist_time[MAX_NUM_STATIONS+1][MAX_NUM_STATIONS+1], loop_ori, loop_final, speed;
