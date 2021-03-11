@@ -154,7 +154,7 @@ void arrive_bus(){
 }
 
 void report_output(void){
-    fprintf (output_file, "\n\nReport Bus Route Model\n");
+    fprintf (output_file, "\n\nReport Output\n");
 
     fprintf (output_file, "A.\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
@@ -170,31 +170,33 @@ void report_output(void){
         fprintf (output_file, "Maximum delay location queue %d : %0.3f\n", i, transfer[3]);
     }
     
-    fprintf (output_file, "\nC.\n");
+    fprintf (output_file, "\nC.Average and maximum number on the bus\n");
     timest(0.0, -VAR_BUS);
-    fprintf (output_file, "Average number on the bus: %0.3f\n", transfer[1]);
-    fprintf (output_file, "Maximum number on the bus: %0.3f\n", transfer[2]);
+    fprintf (output_file, "Average : %0.3f people\n", transfer[1]);
+    fprintf (output_file, "Maximum : %0.3f People\n", transfer[2]);
     
-    fprintf (output_file, "\nD.\n");
+    fprintf (output_file, "\nD.Average, maximum, and minimum time the bus is stopped at each location\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
-    sampst(0.0, -i - VAR_BUS_AT_STATION);
-        fprintf (output_file, "Average time stop in location %d: %0.3f\n", i, transfer[1]);
-        fprintf (output_file, "Maximum time stop in location %d: %0.3f\n", i, transfer[3]);
-        fprintf (output_file, "Minimum time stop in location %d: %0.3f\n", i, transfer[4]);
+        sampst(0.0, -i - VAR_BUS_AT_STATION);
+        fprintf (output_file, "LOCATION %d\n", i);
+        fprintf (output_file, "Average : %0.3f hour\n", transfer[1]);
+        fprintf (output_file, "Maximum : %0.3f hour\n", transfer[3]);
+        fprintf (output_file, "Minimum : %0.3f hour\n", transfer[4]);
     }
     
-    fprintf (output_file, "\nE.\n");
+    fprintf (output_file, "\nE.Average, maximum, and minimum time for the bus to make a loop\n");
     sampst(0.0, -VAR_BUS);
-        fprintf (output_file, "Average time to make a loop:	%0.3f\n", transfer[1]);
-        fprintf (output_file, "Maximum time to make a loop:	%0.3f\n", transfer[3]);
-        fprintf (output_file, "Minimum time to make a loop:	%0.3f\n", transfer[4]);
+    fprintf (output_file, "Average : %0.3f hour\n", transfer[1]);
+    fprintf (output_file, "Maximum : %0.3f hour\n", transfer[3]);
+    fprintf (output_file, "Minimum : %0.3f hour\n", transfer[4]);
         
-    fprintf (output_file, "\n\nf.\n");
+    fprintf (output_file, "\n\nF.Average, maximum, and minimum time a person is in the system by arrival location\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
-    sampst(0.0, -i - VAR_PERSON_FROM_STATION);
-        fprintf (output_file, "Average time person in system from location %d: %0.3f\n", i, transfer[1]);
-        fprintf (output_file, "Maximum time person in system from location %d: %0.3f\n", i, transfer[3]);
-        fprintf (output_file, "Minimum time person in system from location %d: %0.3f\n", i, transfer[4]);
+        sampst(0.0, -i - VAR_PERSON_FROM_STATION);
+        fprintf (output_file, "LOCATION %d\n", i);
+        fprintf (output_file, "Average : %0.3f hour\n", transfer[1]);
+        fprintf (output_file, "Maximum : %0.3f hour\n", transfer[3]);
+        fprintf (output_file, "Minimum : %0.3f hour\n", transfer[4]);
     }
 }
 
@@ -222,16 +224,16 @@ int main (){
 
     // Report 
     fprintf (output_file, "Bus Route model\n\n");
-    fprintf (output_file, "Number of stations%21d", num_stations);
-    fprintf (output_file, "\nDestination  distribution");
+    fprintf (output_file, "Number of stations : %d", num_stations);
+    fprintf (output_file, "\nDestination  distribution : ");
     for (i = 1; i <= num_stations-1; ++i)
-        fprintf (output_file, "%8.3f", prob_distrib_dest[i]);
-    fprintf (output_file, "\nMean interarrival time  ");
+        fprintf (output_file, "%.3f ", prob_distrib_dest[i]);
+    fprintf (output_file, "\nMean interarrival time : ");
     for (i = 1; i <= num_stations; ++i)
-        fprintf (output_file, "%8.3f", mean_interarrival[i]);
-    fprintf (output_file, "\nSimulation duration%20.1f hours", simulation_duration);
-    fprintf (output_file, "\nSpeed%32.1f miles per hour", speed);
-    fprintf (output_file, "\nIdle time%20.1f minutes\n\n", waiting_time);
+        fprintf (output_file, "%.3f ", mean_interarrival[i]);
+    fprintf (output_file, "\nSimulation duration : %.1f hours", simulation_duration);
+    fprintf (output_file, "\nSpeed : %.1f miles per hour", speed);
+    fprintf (output_file, "\nIdle time : %.1f minutes\n\n", waiting_time);
 
     // Initialize bus position
     pos_bus = 2;
