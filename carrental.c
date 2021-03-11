@@ -154,26 +154,37 @@ void arrive_bus(){
 }
 
 void report_output(void){
-    fprintf (output_file, "\n\nReport Output\n");
+    fprintf (output_file, "\nReport Output");
 
-    fprintf (output_file, "A.\n");
+    fprintf (output_file, "A.Average and maximum number in each queue\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
         filest(i);
-        fprintf (output_file, "Average number location queue %d : %0.3f\n", i, transfer[1]);
-        fprintf (output_file, "Maximum number location queue %d : %0.3f\n", i, transfer[2]);
+        if (i <= 2){
+            fprintf (output_file, "QUEUE %d (Terminal %d)\n", i, i);
+        } else  {
+            fprintf (output_file, "QUEUE %d (Car rental)\n", i);
+        }
+        
+        fprintf (output_file, "Average : %0.3f people\n", transfer[1]);
+        fprintf (output_file, "Maximum : %0.3f people\n", transfer[2]);
     }
     
-    fprintf (output_file, "\nB.\n");
+    fprintf (output_file, "\nB.Average and maximum delay in each queue\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
         sampst(0.0, -i);
-        fprintf (output_file, "Average delay location queue %d : %0.3f\n", i, transfer[1]);
-        fprintf (output_file, "Maximum delay location queue %d : %0.3f\n", i, transfer[3]);
+        if (i <= 2){
+            fprintf (output_file, "QUEUE %d (Terminal %d)\n", i, i);
+        } else  {
+            fprintf (output_file, "QUEUE %d (Car rental)\n", i);
+        }
+        fprintf (output_file, "Average : %0.3f hour\n", transfer[1]);
+        fprintf (output_file, "Maximum : %0.3f hour\n", transfer[3]);
     }
     
     fprintf (output_file, "\nC.Average and maximum number on the bus\n");
     timest(0.0, -VAR_BUS);
     fprintf (output_file, "Average : %0.3f people\n", transfer[1]);
-    fprintf (output_file, "Maximum : %0.3f People\n", transfer[2]);
+    fprintf (output_file, "Maximum : %0.3f people\n", transfer[2]);
     
     fprintf (output_file, "\nD.Average, maximum, and minimum time the bus is stopped at each location\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
@@ -190,7 +201,7 @@ void report_output(void){
     fprintf (output_file, "Maximum : %0.3f hour\n", transfer[3]);
     fprintf (output_file, "Minimum : %0.3f hour\n", transfer[4]);
         
-    fprintf (output_file, "\n\nF.Average, maximum, and minimum time a person is in the system by arrival location\n");
+    fprintf (output_file, "\nF.Average, maximum, and minimum time a person is in the system by arrival location\n");
     for (int i = 1; i <= MAX_NUM_STATIONS; i++){
         sampst(0.0, -i - VAR_PERSON_FROM_STATION);
         fprintf (output_file, "LOCATION %d\n", i);
@@ -223,7 +234,7 @@ int main (){
         fscanf (input_file, "%lg", &prob_distrib_dest[i]);
 
     // Report 
-    fprintf (output_file, "Bus Route model\n\n");
+    fprintf (output_file, "Bus Route model\n");
     fprintf (output_file, "Number of stations : %d", num_stations);
     fprintf (output_file, "\nDestination  distribution : ");
     for (i = 1; i <= num_stations-1; ++i)

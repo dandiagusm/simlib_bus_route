@@ -1,0 +1,67 @@
+Bus Route model
+Number of stations : 3
+Destination  distribution : 0.583 1.000 
+Mean interarrival time : 0.071 0.100 0.042 
+Simulation duration : 80.0 hours
+Speed : 30.0 miles per hour
+Idle time : 5.0 minutes
+
+
+Report OutputA.Average and maximum number in each queue
+QUEUE 1 (Terminal 1)
+Average : 7.888 people
+Maximum : 28.000 people
+QUEUE 2 (Terminal 2)
+Average : 5.091 people
+Maximum : 18.000 people
+QUEUE 3 (Car rental)
+Average : 9.922 people
+Maximum : 32.000 people
+
+B.Average and maximum delay in each queue
+QUEUE 1 (Terminal 1)
+Average : 0.559 hour
+Maximum : 1.642 hour
+QUEUE 2 (Terminal 2)
+Average : 0.517 hour
+Maximum : 2.333 hour
+QUEUE 3 (Car rental)
+Average : 0.429 hour
+Maximum : 1.184 hour
+
+C.Average and maximum number on the bus
+Average : 13.910 people
+Maximum : 20.000 people
+
+D.Average, maximum, and minimum time the bus is stopped at each location
+LOCATION 1
+Average : 0.113 hour
+Maximum : 0.175 hour
+Minimum : 0.083 hour
+LOCATION 2
+Average : 0.091 hour
+Maximum : 0.164 hour
+Minimum : 0.083 hour
+LOCATION 3
+Average : 0.191 hour
+Maximum : 0.233 hour
+Minimum : 0.088 hour
+
+E.Average, maximum, and minimum time for the bus to make a loop
+Average : 0.727 hour
+Maximum : 0.812 hour
+Minimum : 0.438 hour
+
+F.Average, maximum, and minimum time a person is in the system by arrival location
+LOCATION 1
+Average : 0.898 hour
+Maximum : 1.968 hour
+Minimum : 0.294 hour
+LOCATION 2
+Average : 0.774 hour
+Maximum : 2.598 hour
+Minimum : 0.221 hour
+LOCATION 3
+Average : 0.718 hour
+Maximum : 1.533 hour
+Minimum : 0.168 hour
